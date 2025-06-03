@@ -16,6 +16,7 @@ sys.path.insert(0, str(project_root))
 
 # -- Project information -----------------------------------------------------
 
+
 # Read version from pyproject.toml
 def get_version():
     with open(project_root / "pyproject.toml") as f:
@@ -23,6 +24,7 @@ def get_version():
             if line.startswith("version = "):
                 return line.split('"')[1]
     return "0.1.0"
+
 
 project = "CodexAgent"
 copyright = f"{datetime.now().year}, Sylvester Francis"
