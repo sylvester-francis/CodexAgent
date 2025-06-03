@@ -1,34 +1,37 @@
 # app/agents/refactor_agent.py
 import ast
 import os
-from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional, Tuple, cast
 
-import astor
+import astor  # type: ignore[import-untyped]
+
+from app.llm.gemini import run_gemini
 
 
 @dataclass
 class CodeIssue:
-    line: int
-    col: int
-    message: str
-    severity: str  # 'info', 'warning', 'error'
+    line: int = 0
+    col: int = 0
+    message: str = ""
+    severity: str = "info"  # 'info', 'warning', 'error'
     suggestion: Optional[str] = None
 
 
 def analyze_code_quality(code: str) -> List[CodeIssue]:
     """Analyze Python code for potential refactoring opportunities."""
-    issues = []
+    issues: List[CodeIssue] = []
 
     try:
         tree = ast.parse(code)
     except SyntaxError as e:
         return [
             CodeIssue(
-                line=e.lineno,
-                col=e.offset,
+                line=e.lineno or 0,
+                col=e.offset or 0,
                 message=f"Syntax error: {e.msg}",
                 severity="error",
+                suggestion=None,
             )
         ]
 
@@ -87,45 +90,41 @@ def get_refactoring_suggestions(code: str, issues: List[CodeIssue]) -> str:
     if not issues:
         return "No significant issues found. The code looks good!"
 
-    formatted_issues = "\n".join(
-        f"- Line {issue.line}: [{issue.severity.upper()}] {issue.message}"
-        f"{' Suggestion: ' + issue.suggestion if issue.suggestion else ''}"
-        for issue in issues
-    )
+    # Format issues for the prompt
+    issue_descriptions = []
+    for i, issue in enumerate(issues, 1):
+        desc = f"{i}. Line {issue.line}, Col {issue.col}: {issue.message}"
+        if issue.suggestion:
+            desc += f"\n   Suggestion: {issue.suggestion}"
+        issue_descriptions.append(desc)
 
     prompt = (
-        "You are an expert Python developer. Please provide specific "
-        "refactoring suggestions for the following code.\n\n"
+        "You are an expert Python developer. Please provide refactoring suggestions "
+        "for the following code based on the issues found. Focus on making the code "
+        "more readable, maintainable, and Pythonic.\n\n"
         f"Code:\n```python\n{code}\n```\n\n"
-        f"Issues found:\n{formatted_issues}\n\n"
-        "Please provide specific, actionable suggestions for refactoring this code. "
-        "For each issue, suggest:\n"
-        "1. What the problem is\n"
-        "2. Why it's a problem\n"
-        "3. How to fix it with a code example\n"
-        "4. Any potential trade-offs or considerations\n\n"
-        "Please format your response in Markdown with clear sections "
-        "for each suggestion."
+        f"Issues found:\n" + "\n".join(issue_descriptions) + "\n\n"
+        "Please provide your refactoring suggestions, including code snippets if applicable. "
+        "Focus on the most important improvements first."
     )
 
-    from app.llm.gemini import generate_text
+    # Add type ignore since we can't modify the gemini module right now
+    return run_gemini(prompt)  # type: ignore[no-any-return]
 
-    return generate_text(prompt)
 
-
-def apply_refactoring(code: str, suggestions: str) -> Tuple[str, str]:
+def apply_refactoring(code: str, suggestions: str) -> str:
     """Apply refactoring suggestions to the code."""
     prompt = (
         "You are an expert Python developer. Please refactor the following code "
-        f"based on the instructions.\n\nOriginal code:\n```python\n{code}\n```\n\n"
-        f"Refactoring instructions:\n{suggestions}\n\n"
-        "Please provide the refactored code in a single code block. Only include "
-        "the refactored code, no explanations or markdown formatting."
+        "based on the suggestions provided. Only return the refactored code, "
+        "without any additional explanation.\n\n"
+        f"Original code:\n```python\n{code}\n```\n\n"
+        f"Refactoring suggestions:\n{suggestions}\n\n"
+        "Please provide the refactored code that implements these suggestions:"
     )
 
-    from app.llm.gemini import generate_text
-
-    refactored_code = generate_text(prompt)
+    # Add type ignore since we can't modify the gemini module right now
+    refactored_code = run_gemini(prompt)  # type: ignore[no-any-return]
 
     # Clean up the response to extract just the code block
     if "```python" in refactored_code:
@@ -137,6 +136,12 @@ def apply_refactoring(code: str, suggestions: str) -> Tuple[str, str]:
 
 
 def refactor_file(file_path: str, output_path: Optional[str] = None) -> Dict[str, str]:
+    """Refactor a single Python file."""
+    result: Dict[str, str] = {
+        "original_file": file_path,
+        "refactored_file": "",
+        "report": "",
+    }
     """Refactor a single Python file."""
     try:
         with open(file_path, "r", encoding="utf-8") as f:

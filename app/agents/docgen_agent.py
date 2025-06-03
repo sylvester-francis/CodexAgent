@@ -1,10 +1,10 @@
 # app/agents/docgen_agent.py
 import ast
 import os
-from dataclasses import dataclass
-from typing import Dict, List, Optional
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional, Union, cast
 
-import astor
+import astor  # type: ignore[import-untyped]
 
 from app.llm.gemini import run_gemini
 
@@ -21,12 +21,12 @@ class FunctionInfo:
 @dataclass
 class ClassInfo:
     name: str
-    methods: List[FunctionInfo]
-    docstring: str
-    source: str
+    methods: List['FunctionInfo'] = field(default_factory=list)
+    docstring: str = ""
+    source: str = ""
 
 
-def analyze_code(code: str) -> Dict:
+def analyze_code(code: str) -> Dict[str, Any]:
     """Analyze Python code and extract information."""
     tree = ast.parse(code)
 
@@ -86,7 +86,7 @@ def analyze_code(code: str) -> Dict:
     return {"functions": functions, "classes": classes}
 
 
-def extract_functions_and_classes(code: str) -> Dict:
+def extract_functions_and_classes(code: str) -> Dict[str, Any]:
     """Extract functions and classes from the given code."""
     tree = ast.parse(code)
 
@@ -146,7 +146,7 @@ def extract_functions_and_classes(code: str) -> Dict:
     return {"functions": functions, "classes": classes}
 
 
-def generate_documentation(code_info: Dict, style: str = "numpy") -> str:
+def generate_documentation(code_info: Dict[str, Any], style: str = "numpy") -> str:
     """Generate documentation for the given code information.
 
     Args:

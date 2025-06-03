@@ -2,6 +2,7 @@
 
 import os
 from pathlib import Path
+from typing import Any, Dict, Generator, Optional
 
 import pytest
 from typer.testing import CliRunner
@@ -14,7 +15,7 @@ def test_data_dir() -> Path:
 
 
 @pytest.fixture(scope="session")
-def sample_python_file(test_data_dir: Path, tmp_path_factory) -> Path:
+def sample_python_file(test_data_dir: Path, tmp_path_factory: Any) -> Path:
     """Create a sample Python file for testing."""
     temp_dir = tmp_path_factory.mktemp("sample_python")
     file_path = temp_dir / "sample.py"
@@ -56,10 +57,17 @@ def cli_runner() -> CliRunner:
 
 
 @pytest.fixture(autouse=True)
-def env_vars() -> None:
-    """Set up environment variables for testing."""
+def env_vars() -> Generator[None, None, None]:
+    """Set up and clean up environment variables for testing."""
+    # Save original environment
+    original_env = os.environ.copy()
+    
+    # Set test environment variables
     os.environ["GEMINI_API_KEY"] = "test_key"
-    yield
-    # Cleanup if needed
-    if "GEMINI_API_KEY" in os.environ:
-        del os.environ["GEMINI_API_KEY"]
+    os.environ["LOG_LEVEL"] = "DEBUG"
+    
+    yield  # Test runs here
+    
+    # Restore original environment
+    os.environ.clear()
+    os.environ.update(original_env)

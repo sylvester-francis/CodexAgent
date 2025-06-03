@@ -1,14 +1,16 @@
 """Tests for the refactor command."""
 
 from pathlib import Path
+from typing import Any, Generator
 
 import pytest
+from typer.testing import CliRunner, Result
 
 from app.cli import app as cli_app
 
 
 @pytest.fixture(scope="session")
-def sample_python_file(tmp_path_factory) -> Path:
+def sample_python_file(tmp_path_factory: Any) -> Path:
     """Return a sample Python file for testing."""
     temp_dir = tmp_path_factory.mktemp("sample_python")
     file_path = temp_dir / "sample.py"
@@ -38,7 +40,9 @@ def process_data(data, param1, param2, param3, param4, param5, param6):
     return file_path
 
 
-def test_refactor_file_command(cli_runner, sample_python_file, tmp_path):
+def test_refactor_file_command(
+    cli_runner: CliRunner, sample_python_file: Path, tmp_path: Path
+) -> None:
     """Test the refactor file command with a sample file."""
     output_dir = tmp_path / "output"
     output_dir.mkdir()
@@ -77,7 +81,9 @@ def test_refactor_file_command(cli_runner, sample_python_file, tmp_path):
     assert len(report_files) > 0, "No refactoring report was created"
 
 
-def test_refactor_apply(cli_runner, sample_python_file, tmp_path):
+def test_refactor_apply(
+    cli_runner: CliRunner, sample_python_file: Path, tmp_path: Path
+) -> None:
     """Test the refactor apply flag."""
     output_dir = tmp_path / "refactored"
 
