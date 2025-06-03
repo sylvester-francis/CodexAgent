@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  codexagent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    working_dir: /app
+    entrypoint: ["codexagent"]
+    command: ["--help"]
+    # Uncomment the following lines to run in development mode
+    # environment:
+    #   - PYTHONUNBUFFERED=1
+    #   - PYTHONDONTWRITEBYTECODE=1
+    # volumes:
+    #   - .:/app
+    #   - /app/__pycache__
+    # command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  # Uncomment to add a Redis service for caching
+  # redis:
+  #   image: redis:alpine
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+
+# volumes:
+#   redis_data:

@@ -1,109 +1,132 @@
 # CodexAgent
 
+[![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 CodexAgent is an AI-powered command-line tool for code analysis, documentation generation, and refactoring. It uses Google's Gemini AI to provide intelligent code analysis and suggestions.
 
-## Features
+## ✨ Features
 
 - **Code Summarization**: Generate high-level summaries of code repositories
 - **Documentation Generation**: Automatically generate documentation for Python code
 - **Code Refactoring**: Get AI-powered refactoring suggestions and apply them
+- **Linting & Formatting**: Integrated with flake8, ruff, and black for code quality
+- **Testing**: Comprehensive test suite with pytest
+- **CI/CD**: GitHub Actions workflow for testing and linting
 
-## Installation
+## 🚀 Getting Started
 
-1. Clone the repository:
+### Prerequisites
+
+- Python 3.8+
+- [Poetry](https://python-poetry.org/) (recommended) or pip
+- [Google Gemini API Key](https://makersuite.google.com/)
+
+### Installation
+
+1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/CodexAgent.git
+   git clone https://github.com/sylvester-francis/CodexAgent.git
    cd CodexAgent
    ```
 
-2. Create and activate a virtual environment:
+2. **Set up the environment**
    ```bash
+   # Using Poetry (recommended)
+   poetry install
+   poetry shell
+   
+   # Or using pip
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. Install dependencies:
-   ```bash
    pip install -r requirements.txt
+   pip install -r requirements-dev.txt  # For development
    ```
 
-4. Set up your Gemini API key:
-   - Get an API key from [Google AI Studio](https://makersuite.google.com/)
-   - Create a `.env` file in the project root and add your API key:
-     ```
-     GEMINI_API_KEY=your_api_key_here
-     ```
+3. **Configure environment variables**
+   ```bash
+   cp .env.example .env
+   # Edit .env and add your Gemini API key
+   ```
 
-## Usage
+## 🛠️ Usage
 
 ### Summarize a Repository
 
 ```bash
-python cli.py summarize /path/to/your/repo
+python cli.py summarize run /path/to/your/repo
 ```
 
 ### Generate Documentation
 
-For a single file:
+**Single file:**
 ```bash
 python cli.py docgen file /path/to/your/file.py
 ```
 
-For all Python files in a directory:
+**Directory:**
 ```bash
 python cli.py docgen dir /path/to/your/directory
 ```
 
 ### Refactor Code
 
-Analyze a file:
+**Analyze a file:**
 ```bash
 python cli.py refactor file /path/to/your/file.py
 ```
 
-Refactor a file (apply changes):
+**Apply refactoring:**
 ```bash
 python cli.py refactor file /path/to/your/file.py --apply --output-dir ./refactored
 ```
 
-Refactor all Python files in a directory:
+## 🧪 Testing
+
+Run the test suite:
+
 ```bash
-python cli.py refactor dir /path/to/your/directory --apply --output-dir ./refactored
+# Run all tests
+pytest
+
+# With coverage report
+pytest --cov=app --cov-report=term-missing
+
+# Run specific test file
+pytest tests/test_summarize.py -v
 ```
 
-## Available Commands
+## 🧹 Linting and Formatting
 
-### Summarize
+```bash
+# Run flake8
+flake8 app tests
 
-- `summarize <path>`: Generate a summary of the code repository
+# Run ruff
+ruff check .
+ruff format --check .
 
-### Docgen
+# Auto-fix with ruff
+ruff check --fix .
+ruff format .
+```
 
-- `docgen file <file_path>`: Generate documentation for a single file
-- `docgen dir <directory_path>`: Generate documentation for all Python files in a directory
+## 🤝 Contributing
 
-### Refactor
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-- `refactor file <file_path>`: Analyze a file for refactoring opportunities
-- `refactor dir <directory_path>`: Analyze all Python files in a directory
-
-## Options
-
-### Docgen Options
-
-- `--output, -o`: Output file or directory for documentation
-- `--style, -s`: Documentation style (numpy, google, or rest)
-
-### Refactor Options
-
-- `--output-dir, -o`: Directory to save refactored files
-- `--apply, -a`: Apply the refactoring (save changes)
-- `--recursive/--no-recursive, -r/`: Search for Python files recursively (default: True)
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
+## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [Google Gemini](https://ai.google.dev/) - For the powerful AI models
+- [Typer](https://typer.tiangolo.com/) - For the CLI framework
+- [Pytest](https://docs.pytest.org/) - For testing framework

@@ -1,0 +1,94 @@
+# .readthedocs.yml
+# Read the Docs configuration file
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+# Required
+version: 2
+
+# Build documentation in the docs/ directory with Sphinx
+sphinx:
+  configuration: docs/source/conf.py
+
+# Optionally set the version of Python and requirements required to build your docs
+python:
+  version: "3.10"
+  install:
+    - requirements: docs/requirements.txt
+
+# Optionally build your docs in additional formats such as PDF
+formats: all
+
+# Optionally set the version of Python and any other tools you might need
+build:
+  os: ubuntu-22.04
+  tools:
+    python: "3.10"
+
+# Optionally specify the path where Sphinx reads the root documentation.
+# This is relative to the project root.
+sphinx.fail_on_warning: true
+
+# Optionally set the default version to serve from the web interface
+# default_version: latest
+
+# Optionally set the default branch to be the default version
+# default_branch: main
+
+# Optionally include additional paths in your documentation build
+# include_patterns:
+#   - .nojekyll
+
+# Optionally exclude paths from your documentation build
+# exclude_patterns:
+#   - _build
+
+# Optionally customize the build process
+# build:
+#   image: latest
+#   apt_packages:
+#     - graphviz
+
+# Optionally customize the mkdocs configuration
+# mkdocs:
+#   configuration: mkdocs.yml
+#   fail_on_warning: false
+
+# Optionally customize the conda environment
+# conda:
+#   environment: docs/environment.yml
+
+# Optionally customize the requirements file path
+# python.install.requirements: docs/requirements.txt
+
+# Optionally customize the path to the documentation root
+# docs_dir: docs
+
+# Optionally customize the path to the configuration file
+# config_file: mkdocs.yml
+
+# Optionally customize the path to the requirements file
+# requirements_file: requirements.txt
+
+# Optionally customize the path to the environment file
+# environment_file: environment.yml
+
+# Optionally customize the path to the conda environment file
+# conda_file: environment.yml
+
+# Optionally customize the path to the mkdocs configuration file
+# mkdocs_config: mkdocs.yml
+
+# Optionally customize the path to the sphinx configuration file
+# sphinx_config: docs/conf.py
+
+# Optionally customize the path to the sphinx source directory
+# sphinx_source_dir: docs/source
+
+# Optionally customize the path to the sphinx output directory
+# sphinx_output_dir: docs/build/html
+
+# Optionally customize the path to the mkdocs documentation directory
+# mkdocs_docs_dir: docs
+
+# Optionally customize the path to the mkdocs site directory
+# mkdocs_site_dir: site
