@@ -37,7 +37,8 @@ jobs:
     
     - name: Lint with flake8
       run: |
-        flake8 app tests
+        python -m flake8 --version
+        python -m flake8 app/ tests/ --show-source --statistics
     
     - name: Lint with ruff
       run: |
