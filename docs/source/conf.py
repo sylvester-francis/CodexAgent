@@ -6,10 +6,8 @@
 
 # -- Path setup --------------------------------------------------------------
 
-import os
 import sys
 from datetime import datetime
-from importlib import metadata
 from pathlib import Path
 
 # Add project root to Python path
