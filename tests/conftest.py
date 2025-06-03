@@ -2,7 +2,7 @@
 
 import os
 from pathlib import Path
-from typing import Any, Dict, Generator, Optional
+from typing import Any, Generator
 
 import pytest
 from typer.testing import CliRunner

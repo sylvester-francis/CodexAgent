@@ -2,10 +2,8 @@
 
 import os
 import shutil
-import sys
 import tempfile
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Union
+from typing import Dict, List
 
 import nox
 from nox.sessions import Session

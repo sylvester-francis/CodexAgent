@@ -1,8 +1,8 @@
 # app/agents/refactor_agent.py
 import ast
 import os
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple, cast
+from dataclasses import dataclass
+from typing import Dict, List, Optional
 
 import astor  # type: ignore[import-untyped]
 
@@ -104,8 +104,8 @@ def get_refactoring_suggestions(code: str, issues: List[CodeIssue]) -> str:
         "more readable, maintainable, and Pythonic.\n\n"
         f"Code:\n```python\n{code}\n```\n\n"
         f"Issues found:\n" + "\n".join(issue_descriptions) + "\n\n"
-        "Please provide your refactoring suggestions, including code snippets if applicable. "
-        "Focus on the most important improvements first."
+        "Please provide your refactoring suggestions, including code snippets "
+        "if applicable. Focus on the most important improvements first."
     )
 
     # Add type ignore since we can't modify the gemini module right now

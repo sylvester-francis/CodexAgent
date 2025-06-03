@@ -1,10 +1,10 @@
 """Tests for the refactor command."""
 
 from pathlib import Path
-from typing import Any, Generator
+from typing import Any
 
 import pytest
-from typer.testing import CliRunner, Result
+from typer.testing import CliRunner
 
 from app.cli import app as cli_app
 

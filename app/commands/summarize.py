@@ -1,6 +1,5 @@
 # app/commands/summarize.py
 import os
-from pathlib import Path
 from typing import List, Tuple
 
 import typer
