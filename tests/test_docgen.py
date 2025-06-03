@@ -1,8 +1,16 @@
 """Tests for the docgen command."""
 
+import os
+import pytest
 from unittest.mock import patch
 
-from app.cli import app as cli_app
+# Skip all tests in this module if GEMINI_API_KEY is not set
+pytestmark = pytest.mark.skipif(
+    not os.environ.get("GEMINI_API_KEY"),
+    reason="GEMINI_API_KEY environment variable not set"
+)
+
+from app.cli import app as cli_app  # noqa: E402
 
 
 def test_docgen_file_command(cli_runner, sample_python_file, tmp_path):

@@ -1,12 +1,19 @@
 """Tests for the refactor command."""
 
+import os
 from pathlib import Path
-from typing import Any
 
 import pytest
 from typer.testing import CliRunner
 
-from app.cli import app as cli_app
+# Skip all tests in this module if GEMINI_API_KEY is not set
+pytestmark = pytest.mark.skipif(
+    not os.environ.get("GEMINI_API_KEY"),
+    reason="GEMINI_API_KEY environment variable not set"
+)
+
+# Import after setting up the skip condition
+from app.cli import app as cli_app  # noqa: E402
 
 
 @pytest.fixture(scope="session")

@@ -1,8 +1,17 @@
 """Tests for the summarize command."""
 
+import os
 from unittest.mock import patch
 
-from app.cli import app as cli_app
+import pytest
+
+# Skip all tests in this module if GEMINI_API_KEY is not set
+pytestmark = pytest.mark.skipif(
+    not os.environ.get("GEMINI_API_KEY"),
+    reason="GEMINI_API_KEY environment variable not set"
+)
+
+from app.cli import app as cli_app  # noqa: E402
 
 
 def test_summarize_command(cli_runner, sample_text_file, tmp_path):
