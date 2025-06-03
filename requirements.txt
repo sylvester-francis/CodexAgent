@@ -1,0 +1,5 @@
+typer>=0.9.0
+python-dotenv>=1.0.0
+google-generativeai>=0.3.0
+astor>=0.8.1
+rich>=13.0.0

@@ -17,4 +17,7 @@ model = genai.GenerativeModel(GEMINI_MODEL)
 
 def run_gemini(prompt: str) -> str:
     response = model.generate_content(prompt)
-    return response.text.strip
+    # Check if response.text is callable or an attribute
+    if callable(response.text):
+        return response.text().strip()
+    return str(response.text).strip()
