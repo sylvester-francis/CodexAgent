@@ -1,9 +1,7 @@
 """Tests for the refactor command."""
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
 import pytest
-from typer.testing import CliRunner
 
 from app.cli import app as cli_app
 
@@ -49,9 +47,17 @@ def test_refactor_file_command(cli_runner, sample_python_file, tmp_path):
     
     # For now, let's just test that the command runs without errors
     # and creates the output file
+    cmd = [
+        "refactor",
+        "file",
+        str(sample_python_file),
+        "--output-dir",
+        str(output_dir),
+        "--apply",
+    ]
     result = cli_runner.invoke(
         cli_app,
-        ["refactor", "file", str(sample_python_file), "--output-dir", str(output_dir), "--apply"],
+        cmd,
         catch_exceptions=False
     )
     
@@ -79,9 +85,17 @@ def test_refactor_apply(cli_runner, sample_python_file, tmp_path):
     
     # For now, let's just test that the command runs without errors
     # and creates the output directory
+    cmd = [
+        "refactor",
+        "file",
+        str(sample_python_file),
+        "--apply",
+        "--output-dir",
+        str(output_dir),
+    ]
     result = cli_runner.invoke(
         cli_app,
-        ["refactor", "file", str(sample_python_file), "--apply", "--output-dir", str(output_dir)],
+        cmd,
         catch_exceptions=False
     )
     

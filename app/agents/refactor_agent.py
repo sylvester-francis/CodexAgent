@@ -1,9 +1,10 @@
 # app/agents/refactor_agent.py
-from typing import Dict, List, Optional, Tuple
 import ast
-import astor
 import os
 from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple
+
+import astor
 
 
 @dataclass
@@ -44,9 +45,15 @@ def analyze_code_quality(code: str) -> List[CodeIssue]:
                 issues.append(CodeIssue(
                     line=node.lineno,
                     col=node.col_offset,
-                    message=f"Function '{node.name}' has {arg_count} arguments, which is too many. Consider refactoring.",
+                    message=(
+                        f"Function '{node.name}' has {arg_count} arguments, "
+                        "which is too many. Consider refactoring."
+                    ),
                     severity="warning",
-                    suggestion="Split into smaller functions or use a data class/dictionary to group related arguments."
+                    suggestion=(
+                        "Split into smaller functions or use a data class/"
+                        "dictionary to group related arguments."
+                    )
                 ))
             
             # Check for long functions
@@ -55,9 +62,15 @@ def analyze_code_quality(code: str) -> List[CodeIssue]:
                 issues.append(CodeIssue(
                     line=node.lineno,
                     col=node.col_offset,
-                    message=f"Function '{node.name}' is {func_length} lines long. Consider refactoring into smaller functions.",
+                    message=(
+                        f"Function '{node.name}' is {func_length} lines long. "
+                        "Consider refactoring into smaller functions."
+                    ),
                     severity="info",
-                    suggestion="Split this function into smaller, single-responsibility functions."
+                    suggestion=(
+                        "Split this function into smaller, "
+                        "single-responsibility functions."
+                    )
                 ))
     
     return issues
@@ -68,53 +81,43 @@ def get_refactoring_suggestions(code: str, issues: List[CodeIssue]) -> str:
     if not issues:
         return "No significant issues found. The code looks good!"
     
-    issues_text = "\n".join(
+    formatted_issues = "\n".join(
         f"- Line {issue.line}: [{issue.severity.upper()}] {issue.message}"
         f"{' Suggestion: ' + issue.suggestion if issue.suggestion else ''}"
         for issue in issues
     )
     
-    prompt = f"""You are an expert Python developer. Please provide specific refactoring suggestions for the following code.
+    prompt = (
+        "You are an expert Python developer. Please provide specific "
+        "refactoring suggestions for the following code.\n\n"
+        f"Code:\n```python\n{code}\n```\n\n"
+        f"Issues found:\n{formatted_issues}\n\n"
+        "Please provide specific, actionable suggestions for refactoring this code. "
+        "For each issue, suggest:\n"
+        "1. What the problem is\n"
+        "2. Why it's a problem\n"
+        "3. How to fix it with a code example\n"
+        "4. Any potential trade-offs or considerations\n\n"
+        "Please format your response in Markdown with clear sections "
+        "for each suggestion."
+    )
     
-Code:
-```python
-{code}
-```
-
-Issues found:
-{issues_text}
-
-Please provide specific, actionable refactoring suggestions. For each suggestion:
-1. Explain the issue in detail
-2. Provide the refactored code
-3. Explain why this is an improvement
-
-Focus on:
-- Improving readability
-- Following Python best practices
-- Making the code more maintainable
-- Improving performance if applicable
-
-Please format your response in Markdown with clear sections for each suggestion."""
-    
-    return run_gemini(prompt)
+    from app.llm.gemini import generate_text
+    return generate_text(prompt)
 
 
 def apply_refactoring(code: str, suggestions: str) -> Tuple[str, str]:
     """Apply refactoring suggestions to the code."""
-    prompt = f"""You are an expert Python developer. Please refactor the following code based on the instructions.
+    prompt = (
+        "You are an expert Python developer. Please refactor the following code "
+        f"based on the instructions.\n\nOriginal code:\n```python\n{code}\n```\n\n"
+        f"Refactoring instructions:\n{suggestions}\n\n"
+        "Please provide the refactored code in a single code block. Only include "
+        "the refactored code, no explanations or markdown formatting."
+    )
     
-Original code:
-```python
-{code}
-```
-
-Instructions:
-{suggestions}
-
-Please provide the refactored code in a single code block. Only include the refactored code, no explanations or markdown formatting."""
-    
-    refactored_code = run_gemini(prompt)
+    from app.llm.gemini import generate_text
+    refactored_code = generate_text(prompt)
     
     # Clean up the response to extract just the code block
     if '```python' in refactored_code:
@@ -136,7 +139,10 @@ def refactor_file(file_path: str, output_path: Optional[str] = None) -> Dict[str
         
         result = {
             'file': file_path,
-            'issues': '\n'.join(f"{issue.line}:{issue.col} [{issue.severity}] {issue.message}" for issue in issues),
+            'issues': '\n'.join(
+                f"{issue.line}:{issue.col} [{issue.severity}] {issue.message}" 
+                for issue in issues
+            ),
             'suggestions': suggestions,
             'refactored_code': None,
             'error': None
@@ -147,7 +153,8 @@ def refactor_file(file_path: str, output_path: Optional[str] = None) -> Dict[str
             result['refactored_code'] = refactored_code
             
             if output_path:
-                os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+                output_dir = os.path.dirname(os.path.abspath(output_path))
+                os.makedirs(output_dir, exist_ok=True)
                 with open(output_path, 'w', encoding='utf-8') as f:
                     f.write(refactored_code)
         

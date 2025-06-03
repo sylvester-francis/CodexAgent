@@ -2,8 +2,7 @@
 import os
 import shutil
 import tempfile
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Dict
 
 import nox
 
@@ -224,7 +223,14 @@ def release(session: nox.Session) -> None:
             session.error("Releases can only be made from the 'main' branch")
     
     # Make sure there are no uncommitted changes
-    if session.run("git", "diff", "--exit-code", "--quiet", external=True, success_codes=[0, 1]).returncode:
+    cmd = ["git", "diff", "--exit-code", "--quiet"]
+    result = session.run(
+        *cmd, 
+        external=True, 
+        success_codes=[0, 1],
+        silent=True
+    )
+    if result.returncode != 0:
         session.error("There are uncommitted changes")
     
     # Run tests and checks
@@ -238,7 +244,13 @@ def release(session: nox.Session) -> None:
     # Upload to PyPI
     if session.posargs and session.posargs[0] == "--test":
         # Upload to TestPyPI
-        session.run("twine", "upload", "--repository-url", "https://test.pypi.org/legacy/", "dist/*")
+        session.run(
+            "twine", 
+            "upload", 
+            "--repository-url", 
+            "https://test.pypi.org/legacy/", 
+            "dist/*"
+        )
     else:
         # Upload to PyPI
         session.run("twine", "upload", "dist/*")
@@ -262,11 +274,22 @@ def release(session: nox.Session) -> None:
 def clean(session: nox.Session) -> None:
     """Clean up build artifacts and caches."""
     # Remove Python cache files
-    session.run("find", ".", "-type", "f", "-name", "*.py[co]", "-delete", external=True)
-    session.run("find", ".", "-type", "d", "-name", "__pycache__", "-exec", "rm", "-r", "{}", "+", external=True)
+    session.run(
+        "find", ".", "-type", "f", "-name", "*.py[co]", "-delete",
+        external=True
+    )
+    session.run(
+        "find", ".", "-type", "d", "-name", "__pycache__",
+        "-exec", "rm", "-r", "{}", "+", external=True
+    )
     
     # Remove build artifacts
-    for path in ["build", "dist", "*.egg-info", ".pytest_cache", ".mypy_cache", ".coverage", "htmlcov"]:
+    artifacts = [
+        "build", "dist", "*.egg-info", 
+        ".pytest_cache", ".mypy_cache", 
+        ".coverage", "htmlcov"
+    ]
+    for path in artifacts:
         if os.path.exists(path):
             if os.path.isdir(path):
                 shutil.rmtree(path)

@@ -1,7 +1,9 @@
 # app/commands/summarize.py
-import typer
-from app.agents.summarize_agent import summarize_code
 import os
+
+import typer
+
+from app.agents.summarize_agent import summarize_code
 
 app = typer.Typer()
 

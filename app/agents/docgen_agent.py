@@ -1,8 +1,11 @@
 # app/agents/docgen_agent.py
-from typing import Dict, List, Optional
-from dataclasses import dataclass
 import ast
 import os
+from dataclasses import dataclass
+from typing import Dict, List, Optional
+
+import astor
+
 from app.llm.gemini import run_gemini
 
 
@@ -153,40 +156,45 @@ def generate_documentation(code_info: Dict, style: str = "numpy") -> str:
     Returns:
         str: Generated documentation
     """
-    prompt = """You are a technical documentation writer. Generate professional documentation for the following code.
+    prompt = (
+        "You are a technical documentation writer. Generate professional "
+        "documentation for the following code.\n\n"
+        "Code Structure:\n"
+    )
     
-Code Structure:
-"""
+    # Build the prompt with file structure
+    tree = ast.parse(code_info['functions'][0].source)
+    if isinstance(tree, ast.Module) and tree.body:
+        for item in tree.body:
+            if isinstance(item, ast.ClassDef):
+                prompt += f"\nClass: {item.name}\n"
+                if item.docstring:
+                    prompt += f"  Docstring: {item.docstring}\n"
+                
+                # Add methods
+                for method in item.body:
+                    if not isinstance(method, ast.FunctionDef):
+                        continue
+                    prompt += f"\n  Method: {method.name}\n"
+                    if method.docstring:
+                        prompt += f"    Docstring: {method.docstring}\n"
+                    # Add source code
+                    source = astor.to_source(method).strip()
+                    prompt += f"    Source: {source}\n"
+            elif isinstance(item, ast.FunctionDef):
+                prompt += f"\nFunction: {item.name}\n"
+                if item.docstring:
+                    prompt += f"  Docstring: {item.docstring}\n"
+                # Add source code
+                source = astor.to_source(item).strip()
+                prompt += f"  Source: {source}\n"
     
-    # Add functions
-    if code_info['functions']:
-        prompt += "\nFunctions:\n"
-        for func in code_info['functions']:
-            args_str = ", ".join(func.args) if func.args else ""
-            prompt += f"\nFunction: {func.name}({args_str})"
-            if func.returns:
-                prompt += f" -> {func.returns}"
-            prompt += f"\nDocstring: {func.docstring}\n"
-            prompt += f"Source: {func.source}\n"
-    
-    # Add classes
-    if code_info['classes']:
-        prompt += "\nClasses:\n"
-        for cls in code_info['classes']:
-            prompt += f"\nClass: {cls.name}\n"
-            prompt += f"Docstring: {cls.docstring}\n"
-            prompt += f"Source: {cls.source}\n"
-            
-            if cls.methods:
-                prompt += "\nMethods:\n"
-                for method in cls.methods:
-                    prompt += f"\n  Method: {method.name}({', '.join(method.args)})"
-                    if method.returns:
-                        prompt += f" -> {method.returns}"
-                    prompt += f"\n  Docstring: {method.docstring}\n"
-                    prompt += f"  Source: {method.source}\n"
-    
-    prompt += f"\nPlease generate comprehensive documentation in {style} style. Include detailed descriptions, parameters, return values, and examples where appropriate.\n"
+    # Add documentation style instructions
+    prompt += (
+        f"\n\nPlease generate documentation in {style} style. "
+        "Include detailed descriptions, parameters, return values, "
+        "and examples where appropriate.\n"
+    )
     
     # Call the Gemini API with the prompt and return the result
     return run_gemini(prompt)

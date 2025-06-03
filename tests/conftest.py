@@ -1,12 +1,9 @@
 """Pytest configuration and fixtures."""
 import os
 from pathlib import Path
-from typing import Generator
 
 import pytest
 from typer.testing import CliRunner
-
-from app.cli import app
 
 
 @pytest.fixture(scope="session")

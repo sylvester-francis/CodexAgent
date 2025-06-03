@@ -1,9 +1,5 @@
 """Tests for the docgen command."""
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-
-import pytest
-from typer.testing import CliRunner
+from unittest.mock import patch
 
 from app.cli import app as cli_app
 
@@ -34,12 +30,16 @@ def test_docgen_dir_command(cli_runner, sample_python_file, tmp_path):
     with patch('app.agents.docgen_agent.document_directory') as mock_document:
         mock_document.return_value = {str(sample_python_file): "Mock documentation"}
         
-        result = cli_runner.invoke(
-            cli_app,
-            ["docgen", "dir", str(sample_python_file.parent), "--output-dir", str(output_dir)],
-        )
+        cmd = [
+            "docgen",
+            "dir",
+            str(sample_python_file.parent),
+            "--output-dir",
+            str(output_dir),
+        ]
+        result = cli_runner.invoke(cli_app, cmd)
         
         assert result.exit_code == 0
-        # The output file will be in a subdirectory, so we'll just check for any .md file
+        # Output file will be in a subdirectory, check for any .md file
         md_files = list(output_dir.glob("**/*.md"))
         assert len(md_files) > 0

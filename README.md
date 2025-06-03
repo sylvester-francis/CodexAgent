@@ -179,27 +179,73 @@ ruff format .
 
 ## 🏗️ Architecture
 
+```mermaid
+graph TD
+    subgraph CodexAgent[CodexAgent CLI Tool]
+        CLI[CLI Commands] -->|Parse & Validate| Agents[Agents]
+        
+        subgraph Agents[Agents Layer]
+            direction TB
+            DocGen[Documentation Generator] -->|Generate| DocOutput[Documentation]
+            Refactor[Code Refactoring] -->|Analyze/Modify| CodeOutput[Refactored Code]
+            Summarizer[Code Summarizer] -->|Generate| SummaryOutput[Summaries]
+        end
+        
+        subgraph LLM[LLM Integration]
+            direction LR
+            Gemini[Google Gemini API] -->|Process| Agents
+            Agents -->|Send Requests| Gemini
+        end
+        
+        subgraph Utils[Utilities]
+            direction TB
+            Config[Configuration]
+            Logging[Logging]
+            FileIO[File I/O]
+            Validators[Input Validation]
+        end
+        
+        CLI -->|Use| Utils
+        Agents -->|Use| Utils
+    end
+    
+    style CLI fill:#f9f,stroke:#333,stroke-width:2px
+    style Agents fill:#bbf,stroke:#333,stroke-width:2px
+    style LLM fill:#f96,stroke:#333,stroke-width:2px
+    style Utils fill:#9f9,stroke:#333,stroke-width:2px
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           CodexAgent CLI Tool                                │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ┌─────────────┐     ┌─────────────┐     ┌─────────────────────────────┐    │
-│  │             │     │             │     │                             │    │
-│  │  Commands   │────▶│    Agents    │────▶│        LLM Backend          │    │
-│  │  (CLI)      │     │  (Logic)     │     │    (Google Gemini API)      │    │
-│  │             │     │             │     │                             │    │
-│  └─────────────┘     └─────────────┘     └───────────────┬─────────────┘    │
-│          │                     │                           │                  │
-│          ▼                     ▼                           │                  │
-│  ┌─────────────┐     ┌─────────────┐                     │                  │
-│  │   Output    │     │  Utilities  │◀───────────────────┘                  │
-│  │  Formatters │     │  (Helpers)  │                                       │
-│  └─────────────┘     └─────────────┘                                       │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
 
-```
+### Component Overview
+
+1. **CLI Commands**
+   - Entry point for user interaction
+   - Command parsing and validation
+   - Rich terminal output formatting
+
+2. **Agents Layer**
+   - Documentation Generator: Creates comprehensive code documentation
+   - Code Refactoring: Analyzes and improves code quality
+   - Code Summarizer: Generates high-level code summaries
+
+3. **LLM Integration**
+   - Google Gemini API integration
+   - Handles AI model interactions
+   - Manages API rate limiting and retries
+
+4. **Utilities**
+   - Configuration management
+   - Logging and error handling
+   - File I/O operations
+   - Input validation and sanitization
+
+### Data Flow
+
+1. User invokes a command through the CLI
+2. CLI parses arguments and routes to the appropriate agent
+3. Agent processes the request using utility functions
+4. For AI-powered features, the agent communicates with the Gemini API
+5. Results are formatted and displayed to the user
+6. Output is saved to disk if specified`
 
 ### Component Interactions:
 

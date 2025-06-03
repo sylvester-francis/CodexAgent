@@ -1,17 +1,21 @@
 # app/commands/refactor.py
-import typer
-import os
-from pathlib import Path
-from typing import Optional, List
 import json
+import os
 from datetime import datetime
+from typing import Dict, Optional
+
+import typer
 
 from app.agents.refactor_agent import refactor_file
 
 app = typer.Typer(help="Refactor Python code to improve quality and maintainability")
 
 
-def get_output_path(file_path: str, output_dir: Optional[str], suffix: str = "") -> str:
+def get_output_path(
+    file_path: str,
+    output_dir: Optional[str],
+    suffix: str = ""
+) -> str:
     """Generate output path for refactored file."""
     if not output_dir:
         return ""
@@ -34,7 +38,7 @@ def get_output_path(file_path: str, output_dir: Optional[str], suffix: str = "")
     return output_path
 
 
-def save_report(report: dict, output_dir: str):
+def save_report(report: Dict, output_dir: str) -> str:
     """Save refactoring report to a JSON file."""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     report_path = os.path.join(output_dir, f"refactor_report_{timestamp}.json")
@@ -47,14 +51,22 @@ def save_report(report: dict, output_dir: str):
 
 @app.command()
 def file(
-    file_path: str = typer.Argument(..., help="Path to the Python file to refactor"),
+    file_path: str = typer.Argument(
+        ..., 
+        help="Path to the Python file to refactor"
+    ),
     output_dir: Optional[str] = typer.Option(
-        None, "--output-dir", "-o", help="Directory to save refactored files"
+        None, 
+        "--output-dir", 
+        "-o", 
+        help="Directory to save refactored files"
     ),
     apply: bool = typer.Option(
-        False, "--apply", "-a", help="Apply the refactoring (save changes)"
+        False, 
+        "--apply", 
+        help="Apply the refactoring changes"
     ),
-):
+) -> None:
     """Refactor a single Python file."""
     if not os.path.isfile(file_path):
         typer.echo(f"Error: File '{file_path}' does not exist.", err=True)
@@ -103,18 +115,27 @@ def file(
 @app.command()
 def dir(
     directory: str = typer.Argument(
-        ..., help="Path to the directory containing Python files to refactor"
+        ..., 
+        help="Path to the directory containing Python files to refactor"
     ),
     output_dir: Optional[str] = typer.Option(
-        None, "--output-dir", "-o", help="Directory to save refactored files"
+        None, 
+        "--output-dir", 
+        "-o", 
+        help="Directory to save refactored files"
     ),
     apply: bool = typer.Option(
-        False, "--apply", "-a", help="Apply the refactoring (save changes)"
+        False, 
+        "--apply", 
+        help="Apply the refactoring changes"
     ),
     recursive: bool = typer.Option(
-        True, "--recursive/--no-recursive", "-r/", help="Search for Python files recursively"
+        True, 
+        "--recursive/--no-recursive", 
+        "-r/", 
+        help="Search for Python files recursively"
     ),
-):
+) -> None:
     """Refactor all Python files in a directory."""
     if not os.path.isdir(directory):
         typer.echo(f"Error: Directory '{directory}' does not exist.", err=True)

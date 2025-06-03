@@ -42,6 +42,7 @@ ENV/
 # Local development
 .refactored/
 reports/
+.coverage
 
 # Documentation build output
 docs/build/
