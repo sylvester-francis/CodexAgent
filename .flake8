@@ -15,51 +15,42 @@ exclude =
     .vscode,
     .idea,
     .github
-per-file-ignores =
-    # Allow for importing * from modules marked as __all__
-    __init__.py: F403,F405
-    # Allow pytest fixtures without type hints in test files
-    tests/*.py: F811, F841, ANN001, ANN201, ANN202, ANN003, ANN101, ANN102, ANN204
-    # Allow for using 'fixture' as a variable name in tests
-    tests/*.py: F402
-    # Allow for using 'mock' in test files
-    tests/*.py: F401
-    # Allow for using 'unittest.mock' in test files
-    tests/*.py: F403
 
-# Import sorting
+per-file-ignores =
+    __init__.py: F403,F405
+    tests/*.py: F401,F403,F405,F811,F841,ANN001,ANN201,ANN202,ANN003,ANN101,ANN102,ANN204
+
 import-order-style = google
 application-import-names = app
 
-# Error codes to ignore
 ignore =
-    E203,  # whitespace before ':' (conflicts with black)
-    W503,  # line break before binary operator (PEP8 vs PEP 8)
-    E501,  # line too long (handled by black)
-    F401,  # imported but unused
-    F403,  # from module import *
-    F405,  # name may be undefined, or defined from star imports
-    E731,  # do not assign a lambda expression, use a def
-    W504,  # line break after binary operator
-    B008,  # do not perform function calls in argument defaults
-    B009,  # do not call a function with dictionary unpacking
-    B010,  # do not call setattr with a constant attribute value
-    B011,  # do not call assert False since python -O removes these calls
-    B014,  # do not call a function with * or ** in a try/except block
-    B025,  # duplicate try/except block
-    B026,  # star-arg unpacking after a keyword argument
-    B027,  # empty method in abstract base class
-    B028,  # no explicit stacklevel= keyword argument for logging.warn
-    B029,  # use of @staticmethod on a method
-    B030,  # use of @classmethod on a method
-    B031,  # use of @property on a method
-    B032,  # use of @abstractmethod on a method
-    B033,  # use of @abstractclassmethod on a method
-    B034,  # use of @abstractstaticmethod on a method
-    B035,  # use of @abstractproperty on a method
-    B036,  # use of @cached_property on a method
-    B901,  # use of 'return' with a value in a generator function
-    B902,  # use of 'yield' in a function with a 'return' statement
-    B903,  # use of 'yield from' in a function with a 'return' statement
-    B904,  # use of 'yield' in a function with a 'return' statement
-    B950  # line too long (handled by black)
+    E203,
+    W503,
+    E501,
+    F401,
+    F403,
+    F405,
+    E731,
+    W504,
+    B008,
+    B009,
+    B010,
+    B011,
+    B014,
+    B025,
+    B026,
+    B027,
+    B028,
+    B029,
+    B030,
+    B031,
+    B032,
+    B033,
+    B034,
+    B035,
+    B036,
+    B901,
+    B902,
+    B903,
+    B904,
+    B950
