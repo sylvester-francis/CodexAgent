@@ -4,7 +4,7 @@ import ast
 import astor
 import os
 from dataclasses import dataclass
-from app.llm.gemini import run_gemini
+
 
 @dataclass
 class CodeIssue:
@@ -14,8 +14,9 @@ class CodeIssue:
     severity: str  # 'info', 'warning', 'error'
     suggestion: Optional[str] = None
 
+
 def analyze_code_quality(code: str) -> List[CodeIssue]:
-    """Analyze Python code for potential issues and improvements."""
+    """Analyze Python code for potential refactoring opportunities."""
     issues = []
     
     try:
@@ -61,8 +62,9 @@ def analyze_code_quality(code: str) -> List[CodeIssue]:
     
     return issues
 
+
 def get_refactoring_suggestions(code: str, issues: List[CodeIssue]) -> str:
-    """Get AI-powered refactoring suggestions for the code."""
+    """Get refactoring suggestions for the given code and issues."""
     if not issues:
         return "No significant issues found. The code looks good!"
     
@@ -97,8 +99,9 @@ Please format your response in Markdown with clear sections for each suggestion.
     
     return run_gemini(prompt)
 
-def apply_refactoring(code: str, instructions: str) -> Tuple[str, str]:
-    """Apply refactoring based on instructions."""
+
+def apply_refactoring(code: str, suggestions: str) -> Tuple[str, str]:
+    """Apply refactoring suggestions to the code."""
     prompt = f"""You are an expert Python developer. Please refactor the following code based on the instructions.
     
 Original code:
@@ -107,7 +110,7 @@ Original code:
 ```
 
 Instructions:
-{instructions}
+{suggestions}
 
 Please provide the refactored code in a single code block. Only include the refactored code, no explanations or markdown formatting."""
     
@@ -120,6 +123,7 @@ Please provide the refactored code in a single code block. Only include the refa
         refactored_code = refactored_code.split('```')[1].split('```')[0].strip()
     
     return refactored_code, "Refactoring applied successfully"
+
 
 def refactor_file(file_path: str, output_path: Optional[str] = None) -> Dict[str, str]:
     """Refactor a single Python file."""

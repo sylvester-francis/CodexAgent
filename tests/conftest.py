@@ -20,9 +20,34 @@ def sample_python_file(test_data_dir: Path, tmp_path_factory) -> Path:
     """Create a sample Python file for testing."""
     temp_dir = tmp_path_factory.mktemp("sample_python")
     file_path = temp_dir / "sample.py"
-    file_path.write_text(
-        'def hello(name: str = "world") -> str:\n    """Say hello to someone.\n    \n    Args:\n        name: Name to greet\n        \n    Returns:\n        A greeting message\n    """\n    return f"Hello, {name}!"\n'
-    )
+    # This function has several issues that should trigger refactoring:
+    # 1. Too many arguments
+    # 2. Long function
+    # 3. Nested conditionals
+    # 4. Hardcoded values
+    file_path.write_text('''
+def process_data(data, param1, param2, param3, param4, param5, param6):
+    """Process data with many parameters."""
+    result = {}
+    for item in data:
+        if item.get("active"):
+            if item.get("type") == "A":
+                result[item["id"]] = {
+                    "value": item["value"] * 2,
+                    "status": "processed"
+                }
+            elif item.get("type") == "B":
+                result[item["id"]] = {
+                    "value": item["value"] * 3,
+                    "status": "processed"
+                }
+            else:
+                result[item["id"]] = {
+                    "value": item["value"],
+                    "status": "unknown"
+                }
+    return result
+''')
     return file_path
 
 
@@ -33,7 +58,7 @@ def cli_runner() -> CliRunner:
 
 
 @pytest.fixture(autouse=True)
-env_vars() -> None:
+def env_vars() -> None:
     """Set up environment variables for testing."""
     os.environ["GEMINI_API_KEY"] = "test_key"
     yield

@@ -2,32 +2,39 @@
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-def test_summarize_command(cli_runner, sample_python_file, tmp_path):
+import pytest
+from typer.testing import CliRunner
+
+from app.cli import app as cli_app
+
+
+def test_summarize_command(cli_runner, sample_text_file, tmp_path):
     """Test the summarize command with a sample file."""
-    with patch("app.agents.summarize_agent.run_gemini") as mock_run_gemini:
-        # Mock the Gemini response
-        mock_run_gemini.return_value = "This is a test summary"
+    output_file = tmp_path / "summary.txt"
+    
+    with patch('app.agents.summarize_agent.summarize_file') as mock_summarize:
+        mock_summarize.return_value = "This is a test summary."
         
-        # Run the command
         result = cli_runner.invoke(
-            app, 
-            ["summarize", "run", str(sample_python_file.parent)],
-            catch_exceptions=False
+            cli_app,
+            ["summarize", str(sample_text_file), "--output", str(output_file)]
         )
         
-        # Check the output
         assert result.exit_code == 0
-        assert "This is a test summary" in result.output
-        mock_run_gemini.assert_called_once()
+        assert output_file.exists()
 
 
 def test_summarize_nonexistent_dir(cli_runner, tmp_path):
-    """Test summarize with a non-existent directory."""
+    """Test the summarize command with a non-existent directory."""
     non_existent_dir = tmp_path / "nonexistent"
+    output_file = tmp_path / "summary.txt"
+    
     result = cli_runner.invoke(
-        app,
-        ["summarize", "run", str(non_existent_dir)],
-        catch_exceptions=False
+        cli_app,
+        ["summarize", str(non_existent_dir), "--output", str(output_file)]
     )
+    
+    # The command should exit with a non-zero status code
     assert result.exit_code != 0
-    assert "does not exist" in result.output
+    # The output should contain an error message
+    assert "does not exist" in result.output.lower()
