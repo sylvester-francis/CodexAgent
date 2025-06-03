@@ -1,4 +1,5 @@
 """Tests for the refactor command."""
+
 from pathlib import Path
 
 import pytest
@@ -41,10 +42,10 @@ def test_refactor_file_command(cli_runner, sample_python_file, tmp_path):
     """Test the refactor file command with a sample file."""
     output_dir = tmp_path / "output"
     output_dir.mkdir()
-    
+
     print(f"Sample file path: {sample_python_file}")
     print(f"Output directory: {output_dir}")
-    
+
     # For now, let's just test that the command runs without errors
     # and creates the output file
     cmd = [
@@ -55,24 +56,21 @@ def test_refactor_file_command(cli_runner, sample_python_file, tmp_path):
         str(output_dir),
         "--apply",
     ]
-    result = cli_runner.invoke(
-        cli_app,
-        cmd,
-        catch_exceptions=False
-    )
-    
+    result = cli_runner.invoke(cli_app, cmd, catch_exceptions=False)
+
     # Print the command output for debugging
     print("\nCommand output:")
     print(result.output)
-    
+
     # Check the output
     assert result.exit_code == 0, f"Command failed with output: {result.output}"
-    
+
     # Check that the output contains the expected refactoring
-    assert "Refactored code saved to:" in result.output or \
-           "No significant issues found" in result.output, \
-           "Expected refactoring output not found in command output"
-    
+    assert (
+        "Refactored code saved to:" in result.output
+        or "No significant issues found" in result.output
+    ), "Expected refactoring output not found in command output"
+
     # Also check that the report was created
     report_files = list(output_dir.glob("**/refactor_report_*.json"))
     print(f"\nFound report files: {report_files}")
@@ -82,7 +80,7 @@ def test_refactor_file_command(cli_runner, sample_python_file, tmp_path):
 def test_refactor_apply(cli_runner, sample_python_file, tmp_path):
     """Test the refactor apply flag."""
     output_dir = tmp_path / "refactored"
-    
+
     # For now, let's just test that the command runs without errors
     # and creates the output directory
     cmd = [
@@ -93,12 +91,8 @@ def test_refactor_apply(cli_runner, sample_python_file, tmp_path):
         "--output-dir",
         str(output_dir),
     ]
-    result = cli_runner.invoke(
-        cli_app,
-        cmd,
-        catch_exceptions=False
-    )
-    
+    result = cli_runner.invoke(cli_app, cmd, catch_exceptions=False)
+
     # Check the output
     assert result.exit_code == 0
     assert output_dir.exists()

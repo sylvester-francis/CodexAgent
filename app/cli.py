@@ -7,19 +7,11 @@ app = typer.Typer(help="CodexAgent - AI-powered code analysis and refactoring to
 
 # Add sub-apps with help text split for line length
 app.add_typer(
-    summarize.app,
-    name="summarize",
-    help="Generate summaries of code repositories"
+    summarize.app, name="summarize", help="Generate summaries of code repositories"
 )
+app.add_typer(docgen.app, name="docgen", help="Generate documentation for Python code")
 app.add_typer(
-    docgen.app,
-    name="docgen",
-    help="Generate documentation for Python code"
-)
-app.add_typer(
-    refactor.app,
-    name="refactor",
-    help="Refactor Python code to improve quality"
+    refactor.app, name="refactor", help="Refactor Python code to improve quality"
 )
 
 if __name__ == "__main__":

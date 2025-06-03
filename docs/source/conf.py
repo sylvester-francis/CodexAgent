@@ -10,19 +10,26 @@ import os
 import sys
 from datetime import datetime
 from importlib import metadata
+from pathlib import Path
 
-# Add the project root to the Python path
-sys.path.insert(0, os.path.abspath("../.."))
+# Add project root to Python path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 # -- Project information -----------------------------------------------------
+
+# Read version from pyproject.toml
+def get_version():
+    with open(project_root / "pyproject.toml") as f:
+        for line in f:
+            if line.startswith("version = "):
+                return line.split('"')[1]
+    return "0.1.0"
 
 project = "CodexAgent"
 copyright = f"{datetime.now().year}, Sylvester Francis"
 author = "Sylvester Francis"
-
-# The full version, including alpha/beta/rc tags
-version = metadata.version("codexagent")
-release = version
+version = release = get_version()
 
 # -- General configuration ---------------------------------------------------
 

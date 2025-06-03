@@ -1,4 +1,5 @@
 """Nox configuration for automated testing and linting."""
+
 import os
 import shutil
 import tempfile
@@ -34,7 +35,7 @@ def install_dependencies(session: nox.Session, *deps: str) -> None:
     """Install dependencies in the session's virtual environment."""
     if not deps:
         return
-    
+
     # Use --no-deps to avoid reinstalling packages that are already installed
     session.install("--upgrade", "pip", "setuptools", "wheel")
     session.install(*deps)
@@ -82,10 +83,10 @@ def run_pytest(
 ) -> None:
     """Run pytest with coverage and xdist by default."""
     pytest_args = ["pytest", "-v"]
-    
+
     if xdist and shutil.which("python") == session.virtualenv.python:
         pytest_args.extend(["-n", "auto"])
-    
+
     if coverage:
         pytest_args.extend(
             [
@@ -95,7 +96,7 @@ def run_pytest(
                 "--cov-fail-under=0",  # Don't fail if coverage is below a threshold
             ]
         )
-    
+
     pytest_args.extend(args)
     session.run(*pytest_args, external=True)
 
@@ -137,7 +138,7 @@ def lint(session: nox.Session) -> None:
         "mypy",
         "types-requests",
     )
-    
+
     run_black(session, check=True)
     run_isort(session, check=True)
     run_flake8(session)
@@ -163,10 +164,10 @@ def coverage(session: nox.Session) -> None:
     """Generate and display coverage report."""
     install_package(session, editable=True)
     install_dependencies(session, "coverage", "pytest-cov")
-    
+
     if not os.path.exists(".coverage"):
         session.run("pytest", "--cov=app", "--cov-report=xml", *session.posargs)
-    
+
     session.run("coverage", "report", "--show-missing")
     session.run("coverage", "html")
     session.run("coverage", "xml")
@@ -183,7 +184,7 @@ def docs(session: nox.Session) -> None:
         "sphinx-autodoc-typehints",
         "myst-parser",
     )
-    
+
     # Build the docs
     session.run("sphinx-build", "-b", "html", "docs/source", "docs/build/html")
 
@@ -192,15 +193,15 @@ def docs(session: nox.Session) -> None:
 def build(session: nox.Session) -> None:
     """Build source and wheel distributions."""
     session.install("build", "twine")
-    
+
     # Clean up previous builds
     for path in ["dist", "build", f"{PACKAGE}.egg-info"]:
         if os.path.exists(path):
             shutil.rmtree(path)
-    
+
     # Build the package
     session.run("python", "-m", "build")
-    
+
     # Check the built distribution
     session.run("twine", "check", "--strict", "dist/*")
 
@@ -221,40 +222,35 @@ def release(session: nox.Session) -> None:
         )
         if branch != "main":
             session.error("Releases can only be made from the 'main' branch")
-    
+
     # Make sure there are no uncommitted changes
     cmd = ["git", "diff", "--exit-code", "--quiet"]
-    result = session.run(
-        *cmd, 
-        external=True, 
-        success_codes=[0, 1],
-        silent=True
-    )
+    result = session.run(*cmd, external=True, success_codes=[0, 1], silent=True)
     if result.returncode != 0:
         session.error("There are uncommitted changes")
-    
+
     # Run tests and checks
     session.notify("lint")
     session.notify("test")
     session.notify("safety")
-    
+
     # Build the package
     build(session)
-    
+
     # Upload to PyPI
     if session.posargs and session.posargs[0] == "--test":
         # Upload to TestPyPI
         session.run(
-            "twine", 
-            "upload", 
-            "--repository-url", 
-            "https://test.pypi.org/legacy/", 
-            "dist/*"
+            "twine",
+            "upload",
+            "--repository-url",
+            "https://test.pypi.org/legacy/",
+            "dist/*",
         )
     else:
         # Upload to PyPI
         session.run("twine", "upload", "dist/*")
-    
+
     # Tag the release
     version = ""
     with open("pyproject.toml", "r") as f:
@@ -262,10 +258,10 @@ def release(session: nox.Session) -> None:
             if line.startswith("version = "):
                 version = line.split('"')[1]
                 break
-    
+
     if not version:
         session.error("Could not determine version from pyproject.toml")
-    
+
     session.run("git", "tag", f"v{version}")
     session.run("git", "push", "--tags")
 
@@ -275,19 +271,32 @@ def clean(session: nox.Session) -> None:
     """Clean up build artifacts and caches."""
     # Remove Python cache files
     session.run(
-        "find", ".", "-type", "f", "-name", "*.py[co]", "-delete",
-        external=True
+        "find", ".", "-type", "f", "-name", "*.py[co]", "-delete", external=True
     )
     session.run(
-        "find", ".", "-type", "d", "-name", "__pycache__",
-        "-exec", "rm", "-r", "{}", "+", external=True
+        "find",
+        ".",
+        "-type",
+        "d",
+        "-name",
+        "__pycache__",
+        "-exec",
+        "rm",
+        "-r",
+        "{}",
+        "+",
+        external=True,
     )
-    
+
     # Remove build artifacts
     artifacts = [
-        "build", "dist", "*.egg-info", 
-        ".pytest_cache", ".mypy_cache", 
-        ".coverage", "htmlcov"
+        "build",
+        "dist",
+        "*.egg-info",
+        ".pytest_cache",
+        ".mypy_cache",
+        ".coverage",
+        "htmlcov",
     ]
     for path in artifacts:
         if os.path.exists(path):
@@ -295,7 +304,7 @@ def clean(session: nox.Session) -> None:
                 shutil.rmtree(path)
             else:
                 os.remove(path)
-    
+
     # Remove documentation build artifacts
     if os.path.exists("docs/build"):
         shutil.rmtree("docs/build")

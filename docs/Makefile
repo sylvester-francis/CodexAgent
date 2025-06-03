@@ -29,6 +29,7 @@ clean:
 	find . -type f -name '*.py[co]' -delete
 
 install:
+	pip install -e ..[dev]
 	pip install -r requirements.txt
 
 .PHONY: help livehtml clean install
